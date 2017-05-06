@@ -1,0 +1,64 @@
+// ==UserScript==
+// @name        twipai
+// @namespace   https://takachan-mirai.github.io
+// @description Overwrite noisey users tweet with oppai in tweetdeck.
+// @include     /https?:\/\/tweetdeck\.twitter\.com.*/
+// @version     1.0.0
+// @grant       none
+// ==/UserScript==
+
+(() => {
+  let paiConfig = localStorage.getItem('twippai_config');
+  let ids = paiConfig !== null && paiConfig !== undefined ? JSON.parse(paiConfig) : [];
+
+  let muting = (records) => {
+    records.forEach((record) => {
+      record.addedNodes.forEach((obj) => {
+        if(obj.classList.contains('stream-item')) {
+          if(ids.indexOf(obj.querySelector(".username").innerText) != '-1') {
+            obj.querySelector(".tweet-text").innerHTML = 'おっぱい';
+          }
+        }
+      });
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    //create ui
+    let app = document.querySelector('.application');
+    app.innerHTML += `
+    <div id="paiconfig" style="position:fixed;bottom:10px;right:10px;background-color:#fff;padding:5px;z-index:10000;transition:1s;width:70px;height:20px;overflow:hidden;border-radius:10px;border:solid 1px #666;">
+      <h2 style="text-align:center;padding-bottom:10px;">ついっぱい</h2>
+      <textarea id="paiId" style="width:100%;height:270px;"></textarea>
+    </div>
+    `;
+    let paiconfig = document.getElementById('paiconfig');
+    paiconfig.addEventListener('mouseenter', (e) => {
+      e.target.style.height = '300px';
+      e.target.style.width = '200px';
+    });
+    paiconfig.addEventListener('mouseleave', (e) => {
+      e.target.style.height = '20px';
+      e.target.style.width = '70px';
+    });
+
+    //set mute
+    let paiId = document.getElementById('paiId');
+    paiId.value = ids.join('\n');
+    paiId.addEventListener('keyup', (e) => {
+      localStorage.setItem('twippai_config', JSON.stringify(e.target.value.split('\n')));
+    });
+
+    //observe elements
+    (new MutationObserver((info) => {
+      muting(info);
+    })).observe(document.body, {
+      childList: true,
+      attributes: false,
+      characterData: false,
+      subtree: true,
+      attributeOldValue: false,
+      characterDataOldValue: false
+    });
+  });
+})();
