@@ -14,8 +14,9 @@
   let muting = (records) => {
     records.forEach((record) => {
       record.addedNodes.forEach((obj) => {
-        if(obj.classList.contains('stream-item')) {
-          if(ids.indexOf(obj.querySelector(".username").innerText) != '-1') {
+        if(obj.nodeType == Node.ELEMENT_NODE && obj.classList.contains('stream-item')) {
+          const userName = obj.querySelector(".username");
+          if(userName && ids.indexOf(userName.innerText) != '-1') {
             obj.querySelector(".tweet-text").innerHTML = 'おっぱい';
           }
         }
